@@ -2,6 +2,7 @@ package com.qbi.vigil;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,8 +18,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -42,8 +44,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .addApi(LocationServices.API)
                     .build();
         }
-
-
 
 
     }
@@ -122,6 +122,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.addMarker(new MarkerOptions().position(curr).title("Current Location"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(curr));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(15f));
+
+        for (int i = 0; i < 20; i++) {
+            // Instantiates a new CircleOptions object and defines the center and radius
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(new LatLng(curr.latitude + Math.random() * .04 - .02, curr.longitude + Math.random() * .04 - .02))
+                    .radius(200+Math.random() * 700); // In meters
+
+            // Get back the mutable Circle
+            Circle circle = mMap.addCircle(circleOptions);
+            circle.setFillColor(Color.argb(70, (int)(Math.random() * 255), (int)(Math.random() * 255), 0));
+            circle.setStrokeColor(Color.TRANSPARENT);
+        }
     }
 
     @Override
