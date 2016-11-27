@@ -7,9 +7,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -34,10 +38,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private List<DangerZone> dangerZones;
 
+    private DrawerLayout mDrawerLayout;
+    private NavigationView navigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView) findViewById(R.id.navigation);
+
+        setupNavigationDrawerClickListener();
+
         populateDangerZonesData();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -54,11 +67,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private void setupNavigationDrawerClickListener() {
+        //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            
+
+            // This method will trigger on item Click of navigation menu
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                
+                
+                //Checking if the item is in checked state or not, if not make it in checked state
+                if (menuItem.isChecked()) menuItem.setChecked(false);
+                else menuItem.setChecked(true);
+                
+                //Closing drawer on item click
+                mDrawerLayout.closeDrawers();
+                
+                //Check to see which item was being clicked and perform appropriate action
+                switch (menuItem.getItemId()) {
+                  
+                    //Replacing the main content with ContentFragment Which is our Inbox View;
+                    case R.id.map:
+                        Toast.makeText(getApplicationContext(), "Map Selected", Toast.LENGTH_SHORT).show();
+                        return true;
+                    
+                    case R.id.settings:
+                        Toast.makeText(getApplicationContext(), "Settings Selected", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.help:
+                        Toast.makeText(getApplicationContext(), "Help Selected", Toast.LENGTH_SHORT).show();
+                        return true;
+                    default:
+                        Toast.makeText(getApplicationContext(), "Uh oh.", Toast.LENGTH_SHORT).show();
+                        return true;
+
+                }
+            }
+        });
+    }
+
     private void populateDangerZonesData() {
         dangerZones = new ArrayList<>();
         LatLng city = new LatLng(33.7490, -84.3880);
 //        LatLng city = new LatLng(33.9519, -83.3576);
-        for (int i = 0; i < 100; i ++) {
+        for (int i = 0; i < 100; i++) {
             double newLat = Math.random() * .5 - .25 + city.latitude;
             double newLng = Math.random() * .5 - .25 + city.longitude;
             double radius = 500 + Math.random() * 5000;
@@ -127,7 +180,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             // Get back the mutable Circle
             Circle circle = mMap.addCircle(circleOptions);
-            circle.setFillColor(Color.argb(50, (int)(zone.getSeverity() * 128 + 128), 255 - (int)(zone.getSeverity() * 255), 0));
+            circle.setFillColor(Color.argb(50, (int) (zone.getSeverity() * 128 + 128), 255 - (int) (zone.getSeverity() * 255), 0));
             circle.setStrokeColor(Color.TRANSPARENT);
         }
 
@@ -151,8 +204,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mGoogleApiClient);
 
         LatLng curr = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-
-
 
 
 //        mMap.addMarker(new MarkerOptions().position(curr).title("Current Location"));
