@@ -14,5 +14,10 @@
             android:icon="@drawable/ic_help_black_24dp"
             android:id="@+id/help"
             android:title="Help" />
+
+        <item
+            android:icon="@drawable/ic_warning_black_24dp"
+            android:id="@+id/notification"
+            android:title="Test Notification" />
     </group>
 </menu>

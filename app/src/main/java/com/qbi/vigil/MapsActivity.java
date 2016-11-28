@@ -1,6 +1,10 @@
 package com.qbi.vigil;
 
 import android.Manifest;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -10,6 +14,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
@@ -32,6 +38,7 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
+    private static final int DANGER_NOTIFICATION_ID = 1;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -67,36 +74,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private void sendNotification() {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_warning_black_24dp)
+                        .setContentTitle("Danger!")
+                        .setContentText("You have entered an unsafe area. The violent crime rate in this area is higher than the neighboring areas.");
+// Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(this, MapsActivity.class);
+
+// The stack builder object will contain an artificial back stack for the
+// started Activity.
+// This ensures that navigating backward from the Activity leads out of
+// your application to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+// Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(MapsActivity.class);
+// Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+// mId allows you to update the notification later on.
+        mNotificationManager.notify(DANGER_NOTIFICATION_ID, mBuilder.build());
+    }
+
     private void setupNavigationDrawerClickListener() {
         //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            
+
 
             // This method will trigger on item Click of navigation menu
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                
-                
+
+
                 //Checking if the item is in checked state or not, if not make it in checked state
                 if (menuItem.isChecked()) menuItem.setChecked(false);
                 else menuItem.setChecked(true);
-                
+
                 //Closing drawer on item click
                 mDrawerLayout.closeDrawers();
-                
+
                 //Check to see which item was being clicked and perform appropriate action
                 switch (menuItem.getItemId()) {
-                  
+
                     //Replacing the main content with ContentFragment Which is our Inbox View;
                     case R.id.map:
                         Toast.makeText(getApplicationContext(), "Map Selected", Toast.LENGTH_SHORT).show();
                         return true;
-                    
+
                     case R.id.settings:
                         Toast.makeText(getApplicationContext(), "Settings Selected", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.help:
                         Toast.makeText(getApplicationContext(), "Help Selected", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.notification:
+                        sendNotification();
                         return true;
                     default:
                         Toast.makeText(getApplicationContext(), "Uh oh.", Toast.LENGTH_SHORT).show();
