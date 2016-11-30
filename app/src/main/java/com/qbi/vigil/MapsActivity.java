@@ -32,6 +32,14 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,17 +156,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void populateDangerZonesData() {
+
         dangerZones = new ArrayList<>();
-        LatLng city = new LatLng(33.7490, -84.3880);
-//        LatLng city = new LatLng(33.9519, -83.3576);
-        for (int i = 0; i < 100; i++) {
-            double newLat = Math.random() * .5 - .25 + city.latitude;
-            double newLng = Math.random() * .5 - .25 + city.longitude;
-            double radius = 500 + Math.random() * 5000;
-            double severity = Math.random();
-            dangerZones.add(new DangerZone(severity, radius, newLat, newLng));
+
+        String json = null;
+        try {
+
+            InputStream is = getAssets().open("danger_zone.json");
+
+            int size = is.available();
+
+            byte[] buffer = new byte[size];
+
+            is.read(buffer);
+
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+
+
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+        JSONArray arr = null;
+        try {
+            arr = new JSONArray(json);
+            for (int i = 0; i < arr.length(); i++) {
+                double severity = arr.getJSONObject(i).getDouble("weight");
+                double radius = arr.getJSONObject(i).getDouble("radius") * 100.0 * severity;
+                double centerLatitude = arr.getJSONObject(i).getDouble("longitude");
+                double centerLongitude = arr.getJSONObject(i).getDouble("latitude");
+                System.out.println(centerLatitude);
+                System.out.println(centerLongitude);
+                DangerZone dz = new DangerZone(severity, radius, centerLatitude, centerLongitude);
+                dangerZones.add(dz);
+            }
+
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -220,7 +260,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             // Get back the mutable Circle
             Circle circle = mMap.addCircle(circleOptions);
-            circle.setFillColor(Color.argb(50, (int) (zone.getSeverity() * 128 + 128), 255 - (int) (zone.getSeverity() * 255), 0));
+            circle.setFillColor(Color.argb(50, (int) (zone.getSeverity() / 10 * 128 + 128), 255 - (int) (zone.getSeverity() / 10 * 255), 0));
             circle.setStrokeColor(Color.TRANSPARENT);
         }
 
