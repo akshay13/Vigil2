@@ -4,4 +4,13 @@
     <string name="app_name">Vigil</string>
     <string name="title_activity_maps">Map</string>
 
+    <string name="enable_notification">Notifications</string>
+
+    <string name="about_title">About Vigil</string>
+    <string name="about_content">Vigil is an application created by QBI, a team from the Georgia Institute of Technology. The application analyzes all of the Atlanta Police Department’s crime data and provides you with “danger-zones,” areas where crime has historically occurred more frequently. It actively alerts you when you have entered danger-zones and navigates you out of danger-zones as quickly as possible.
+</string>
+    <string name="contact_title">Contact Us</string>
+    <string name="contact_content">Please email us with any questions or concerns: </string>
+    <string name="contact_url">contact.qbi@gmail.com</string>
+
 </resources>

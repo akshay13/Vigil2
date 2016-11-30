@@ -1,0 +1,28 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.qbi.vigil.SettingsFragment"
+    android:background="@android:color/white"
+    android:id="@+id/settings_fragment_id">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Switch
+            android:text=" Receive Notifications"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="25px"
+            android:paddingRight="25px"
+            android:id="@+id/switch_notification" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/switch_notification"
+            android:text="Save"
+            android:id="@+id/save_button" />
+    </RelativeLayout>
+</FrameLayout>

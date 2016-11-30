@@ -5,15 +5,18 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
@@ -43,7 +46,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, SettingsFragment.OnFragmentInteractionListener, HelpFragment.OnFragmentInteractionListener {
 
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
     private static final int DANGER_NOTIFICATION_ID = 1;
@@ -55,6 +58,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private DrawerLayout mDrawerLayout;
     private NavigationView navigationView;
+
+    private boolean enableNotifications;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +84,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .build();
         }
 
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        enableNotifications = sharedPref.getBoolean(getString(R.string.enable_notification), true);
 
     }
 
@@ -135,16 +142,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //Replacing the main content with ContentFragment Which is our Inbox View;
                     case R.id.map:
                         Toast.makeText(getApplicationContext(), "Map Selected", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(MapsActivity.this, MapsActivity.class));
                         return true;
 
                     case R.id.settings:
                         Toast.makeText(getApplicationContext(), "Settings Selected", Toast.LENGTH_SHORT).show();
+
+                        FragmentTransaction ft_settings = getSupportFragmentManager().beginTransaction();
+                        ft_settings.add(R.id.drawer_layout, SettingsFragment.newInstance());
+                        ft_settings.commit();
+
                         return true;
                     case R.id.help:
                         Toast.makeText(getApplicationContext(), "Help Selected", Toast.LENGTH_SHORT).show();
+
+                        FragmentTransaction ft_help = getSupportFragmentManager().beginTransaction();
+                        ft_help.add(R.id.drawer_layout, HelpFragment.newInstance());
+                        ft_help.commit();
+
                         return true;
                     case R.id.notification:
-                        sendNotification();
+                        if (enableNotifications) {
+                            sendNotification();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Notifications Disabled", Toast.LENGTH_SHORT).show();
+                        }
                         return true;
                     default:
                         Toast.makeText(getApplicationContext(), "Uh oh.", Toast.LENGTH_SHORT).show();
@@ -298,6 +320,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
     }
 }
